@@ -13,6 +13,7 @@ import java.util.*;
  * @author: dinglie
  */
 public class WordCountReduce {
+    private String VALUE = "1";
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment executionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
         Tuple2<String, List<String>> tuple1 = new Tuple2<>();
