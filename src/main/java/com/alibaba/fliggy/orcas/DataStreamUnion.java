@@ -1,6 +1,11 @@
 package com.alibaba.fliggy.orcas;
 
+import org.apache.flink.api.common.functions.RichMapFunction;
+import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.*;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -8,6 +13,8 @@ import org.apache.flink.streaming.api.functions.co.CoFlatMapFunction;
 import org.apache.flink.streaming.api.functions.co.CoMapFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
+
+import java.lang.reflect.Type;
 
 /**
  * @description：TODO
@@ -74,5 +81,48 @@ public class DataStreamUnion {
         SideOutputDataStream<Object> sideOutput = process.getSideOutput(outputTag);
         sideOutput.print();
         executionEnvironment.execute();
+
+        // 设置并行度
+        tuple2DataStreamSource.setParallelism(5);
+
+        // 元组
+        executionEnvironment.fromElements(Tuple2.of(1, 3), Tuple2.of(5, 6));
+
+
+        // 指定类型信息
+        integerDataStreamSource1.map((x) -> x + 1).returns(Types.INT);
+        tuple2DataStreamSource.map((x) -> x).returns(Types.TUPLE(Types.INT, Types.STRING));
+
+        // 指定键值
+        // 可以指定属性
+        tuple2DataStreamSource
+                .keyBy(x -> x.f0)
+                .keyBy(0)
+                .keyBy("f0").keyBy(new KeySelector<Tuple2<Integer, Long>, Object>() {
+            @Override
+            public Object getKey(Tuple2<Integer, Long> integerLongTuple2) throws Exception {
+                return null;
+            }
+        });
+
+        // 富函数
+        tuple2DataStreamSource.map(new RichMapFunction<Tuple2<Integer, Long>, Object>() {
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                RuntimeContext runtimeContext = getRuntimeContext();
+
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+
+            @Override
+            public Object map(Tuple2<Integer, Long> integerLongTuple2) throws Exception {
+                return null;
+            }
+        });
     }
 }
