@@ -6,8 +6,14 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
+import org.apache.flink.streaming.api.functions.AssignerWithPunctuatedWatermarks;
+import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
+import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.operators.TimestampedCollector;
+import org.apache.flink.streaming.api.windowing.time.Time;
 
+import javax.annotation.Nullable;
 import java.time.Duration;
 
 /**
@@ -41,6 +47,47 @@ public class TimeAndWindowJob {
 
         integerDataStreamSource2.assignTimestampsAndWatermarks(tuple2WatermarkStrategy);
 
+
+        executionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        executionEnvironment.getConfig().setAutoWatermarkInterval(5000);
+
+
+        // 两个常见的水位线分配器
+        // 如果是单调递增
+        integerDataStreamSource2.assignTimestampsAndWatermarks(new AscendingTimestampExtractor() {
+            @Override
+            public long extractAscendingTimestamp(Object o) {
+                return 0;
+            }
+        });
+
+        // 一般很难满足单调递增的情况，通常都会乱序。如果乱序，AscendingTimestampExtractor需要异常处理机制
+        integerDataStreamSource2.assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor<Tuple2<Long, Integer>>(Time.seconds(10)) {
+            @Override
+            public long extractTimestamp(Tuple2<Long, Integer> longIntegerTuple2) {
+                return 0;
+            }
+        });
+
+        // 定点水位分配器
+        // 基于某些事件去做判断
+        integerDataStreamSource2.assignTimestampsAndWatermarks(new AssignerWithPunctuatedWatermarks<Tuple2<Long, Integer>>() {
+            private Long boundary = 60 * 1000L;
+
+            @Nullable
+            @Override
+            public org.apache.flink.streaming.api.watermark.Watermark checkAndGetNextWatermark(Tuple2<Long, Integer> longIntegerTuple2, long l) {
+                if (l == longIntegerTuple2.f0) {
+                    return new org.apache.flink.streaming.api.watermark.Watermark(l - boundary);
+                }
+                return null;
+            }
+
+            @Override
+            public long extractTimestamp(Tuple2<Long, Integer> longIntegerTuple2, long l) {
+                return longIntegerTuple2.f1;
+            }
+        });
     }
 
     // WatermarkGenerators
@@ -77,4 +124,18 @@ public class TimeAndWindowJob {
         }
     }
 
+    public static class PeriodicAssigner implements AssignerWithPeriodicWatermarks<Long> {
+        private Long bound = 60 * 1000L;
+        private Long maxTs = Long.MIN_VALUE;
+        @Nullable
+        @Override
+        public org.apache.flink.streaming.api.watermark.Watermark getCurrentWatermark() {
+            return new org.apache.flink.streaming.api.watermark.Watermark(maxTs - bound);
+        }
+
+        @Override
+        public long extractTimestamp(Long aLong, long l) {
+            return 0;
+        }
+    }
 }
