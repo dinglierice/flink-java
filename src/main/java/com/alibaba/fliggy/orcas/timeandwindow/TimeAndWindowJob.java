@@ -1,17 +1,26 @@
 package com.alibaba.fliggy.orcas.timeandwindow;
 
 import org.apache.flink.api.common.eventtime.*;
+import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.state.StateTtlConfig;
+import org.apache.flink.api.common.state.ValueState;
+import org.apache.flink.api.common.state.ValueStateDescriptor;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.TimeCharacteristic;
+import org.apache.flink.streaming.api.TimerService;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.functions.AssignerWithPunctuatedWatermarks;
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.operators.TimestampedCollector;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.util.Collector;
+import org.apache.flink.util.OutputTag;
 
 import javax.annotation.Nullable;
 import java.time.Duration;
@@ -88,6 +97,46 @@ public class TimeAndWindowJob {
                 return longIntegerTuple2.f1;
             }
         });
+
+        integerDataStreamSource2.keyBy(value -> value.f0).process(new KeyedProcessFunction<Long, Tuple2<Long, Integer>, String>() {
+            @Override
+            public void processElement(Tuple2<Long, Integer> longIntegerTuple2, KeyedProcessFunction<Long, Tuple2<Long, Integer>, String>.Context context, Collector<String> collector) throws Exception {
+                // 可以基于Context访问当前的时间戳、记录的键值以及TimerService
+
+                // TimerService
+                TimerService timerService = context.timerService();
+                timerService.currentProcessingTime();
+
+                // 事件时间，比较的是计时器时间戳和水位线
+                timerService.registerEventTimeTimer(123);
+                timerService.registerProcessingTimeTimer(123);
+            }
+
+            @Override
+            public void onTimer(long timestamp, KeyedProcessFunction<Long, Tuple2<Long, Integer>, String>.OnTimerContext ctx, Collector<String> out) throws Exception {
+                // 这是一个回调函数
+                // 在注册的计时器触发时会被调用
+                super.onTimer(timestamp, ctx, out);
+            }
+
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+        });
+
+        // 利用stream2模拟一个时间传感器，当温度在1秒内上升超过1度时立刻报警
+        // TODO 关于这里为什么必须实现泛型类 有待研究
+
+        // 还包含了副输出的内容
+        integerDataStreamSource2.keyBy(1).process(new TempIncreaseAlertFunction()).getSideOutput(new OutputTag("success"));
+
+        // TODO CoProcessFunction继续学习
     }
 
     // WatermarkGenerators
@@ -136,6 +185,46 @@ public class TimeAndWindowJob {
         @Override
         public long extractTimestamp(Long aLong, long l) {
             return 0;
+        }
+    }
+
+
+    public static class TempIncreaseAlertFunction<T, B, N> extends KeyedProcessFunction<Long, Tuple2<Long, Integer>, String> {
+        private ValueState<Integer> lastTemp = getRuntimeContext().getState(new ValueStateDescriptor<>("lastTemp", Integer.class));
+        private ValueState<Long> currentTimer = getRuntimeContext().getState(new ValueStateDescriptor<>("lastTemp", Long.class));
+        private OutputTag<String> output = new OutputTag<String>("123");
+        @Override
+        public void open(Configuration parameters) throws Exception {
+            super.open(parameters);
+        }
+
+        @Override
+        public void processElement(Tuple2<Long, Integer> longIntegerTuple2, KeyedProcessFunction<Long, Tuple2<Long, Integer>, String>.Context context, Collector<String> collector) throws Exception {
+            Integer value = lastTemp.value();
+            lastTemp.update(longIntegerTuple2.f1);
+
+            Long curTimerTimestamp = longIntegerTuple2.f0;
+            if (value == 0 || value >= longIntegerTuple2.f1) {
+                context.timerService().deleteEventTimeTimer(curTimerTimestamp);
+                context.output(output, "123");
+            } else if (value < longIntegerTuple2.f1 && curTimerTimestamp == 0) {
+                Long timerTs = context.timerService().currentProcessingTime() + 1000;
+                context.timerService().registerProcessingTimeTimer(timerTs);
+                currentTimer.update(timerTs);
+            }
+        }
+
+        @Override
+        public void onTimer(long timestamp, KeyedProcessFunction<Long, Tuple2<Long, Integer>, String>.OnTimerContext ctx, Collector<String> out) throws Exception {
+            out.collect("Temperature of sensor" + ctx.getCurrentKey() +
+                "monotonically in creased or 1 second. ");
+            currentTimer.clear();
+        }
+        @Override
+        public void close() throws Exception {
+            super.close();
+            lastTemp.clear();
+            currentTimer.clear();
         }
     }
 }
