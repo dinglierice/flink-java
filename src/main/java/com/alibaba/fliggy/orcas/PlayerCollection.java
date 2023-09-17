@@ -17,7 +17,6 @@ public class PlayerCollection {
     private static List<Player> allPlayers;
     private static List<List<Player>> finishedCollections = new ArrayList<List<Player>>();
     private static List<List<Player>> allPlayersCollection = new ArrayList<>();
-
     private static Map<Player, Integer> learderboard = new HashMap<>();
 
 
