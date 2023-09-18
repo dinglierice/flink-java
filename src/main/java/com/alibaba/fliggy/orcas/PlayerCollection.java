@@ -14,10 +14,10 @@ import static com.alibaba.fliggy.orcas.Player.*;
  * @date：2023/9/17 12:39
  */
 public class PlayerCollection {
-    private static List<Player> allPlayers;
-    private static List<List<Player>> finishedCollections = new ArrayList<List<Player>>();
-    private static List<List<Player>> allPlayersCollection = new ArrayList<>();
-    private static Map<Player, Integer> learderboard = new HashMap<>();
+    private static final List<Player> allPlayers;
+    private static final List<List<Player>> finishedCollections = new ArrayList<List<Player>>();
+    private static final List<List<Player>> allPlayersCollection = new ArrayList<>();
+    private static final Map<Player, Integer> learderboard = new HashMap<>();
 
 
     static {
