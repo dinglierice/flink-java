@@ -15,7 +15,7 @@ import static com.alibaba.fliggy.orcas.Player.*;
  */
 public class PlayerCollection {
     private static final List<Player> allPlayers;
-    private static final List<List<Player>> finishedCollections = new ArrayList<List<Player>>();
+    private static final List<List<Player>> finishedCollections = new ArrayList<>();
     private static final List<List<Player>> allPlayersCollection = new ArrayList<>();
     private static final Map<Player, Integer> learderboard = new HashMap<>();
 
