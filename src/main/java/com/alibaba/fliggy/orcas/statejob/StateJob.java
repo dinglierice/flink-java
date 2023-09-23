@@ -33,7 +33,7 @@ public class StateJob {
 
 
 class TemperatureAlertFunction extends RichFlatMapFunction<TempSensorRecord, Tuple3<String, Double, Double>> {
-    private Double threshold;
+    private final Double threshold;
 
     public TemperatureAlertFunction(Double threshold) {
         this.threshold = threshold;
