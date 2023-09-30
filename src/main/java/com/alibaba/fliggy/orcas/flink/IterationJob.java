@@ -1,4 +1,4 @@
-package com.alibaba.fliggy.orcas;
+package com.alibaba.fliggy.orcas.flink;
 
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;

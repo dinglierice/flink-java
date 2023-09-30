@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.alibaba.fliggy.orcas;
+package com.alibaba.fliggy.orcas.flink;
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 

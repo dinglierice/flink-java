@@ -1,4 +1,4 @@
-package com.alibaba.fliggy.orcas;
+package com.alibaba.fliggy.orcas.flink;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.api.java.tuple.Tuple2;

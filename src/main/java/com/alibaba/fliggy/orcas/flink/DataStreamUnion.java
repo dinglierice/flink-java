@@ -1,4 +1,4 @@
-package com.alibaba.fliggy.orcas;
+package com.alibaba.fliggy.orcas.flink;
 
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.functions.RuntimeContext;

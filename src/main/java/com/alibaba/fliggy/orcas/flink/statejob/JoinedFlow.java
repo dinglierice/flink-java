@@ -1,7 +1,6 @@
-package com.alibaba.fliggy.orcas.statejob;
+package com.alibaba.fliggy.orcas.flink.statejob;
 
 import org.apache.flink.api.common.state.*;
-import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;

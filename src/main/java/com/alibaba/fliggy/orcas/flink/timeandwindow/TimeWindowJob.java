@@ -1,9 +1,8 @@
-package com.alibaba.fliggy.orcas.timeandwindow;
+package com.alibaba.fliggy.orcas.flink.timeandwindow;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.math3.analysis.function.Min;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
@@ -23,7 +22,6 @@ import org.apache.flink.util.Collector;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * @description：窗口算子

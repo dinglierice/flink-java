@@ -1,4 +1,4 @@
-package com.alibaba.fliggy.orcas.timeandwindow;
+package com.alibaba.fliggy.orcas.flink.timeandwindow;
 
 import org.apache.flink.streaming.api.windowing.evictors.Evictor;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;

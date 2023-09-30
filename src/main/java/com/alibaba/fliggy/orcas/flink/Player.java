@@ -1,4 +1,4 @@
-package com.alibaba.fliggy.orcas;
+package com.alibaba.fliggy.orcas.flink;
 
 public enum Player {
     SHD("SHD"),

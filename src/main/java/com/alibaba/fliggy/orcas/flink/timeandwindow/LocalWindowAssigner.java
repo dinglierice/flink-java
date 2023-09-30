@@ -1,4 +1,4 @@
-package com.alibaba.fliggy.orcas.timeandwindow;
+package com.alibaba.fliggy.orcas.flink.timeandwindow;
 
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.typeutils.TypeSerializer;

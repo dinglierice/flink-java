@@ -1,6 +1,4 @@
-package com.alibaba.fliggy.orcas;
-
-import org.apache.commons.collections.CollectionUtils;
+package com.alibaba.fliggy.orcas.flink;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,7 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
-import static com.alibaba.fliggy.orcas.Player.*;
+import static com.alibaba.fliggy.orcas.flink.Player.*;
 
 /**
  * @description：TODO

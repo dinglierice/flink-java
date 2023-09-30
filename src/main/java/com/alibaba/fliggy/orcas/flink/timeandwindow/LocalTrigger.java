@@ -1,11 +1,10 @@
-package com.alibaba.fliggy.orcas.timeandwindow;
+package com.alibaba.fliggy.orcas.flink.timeandwindow;
 
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.streaming.api.windowing.triggers.Trigger;
 import org.apache.flink.streaming.api.windowing.triggers.TriggerResult;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
-import org.apache.flink.streaming.api.windowing.windows.Window;
 
 /**
  * @description：TODO
