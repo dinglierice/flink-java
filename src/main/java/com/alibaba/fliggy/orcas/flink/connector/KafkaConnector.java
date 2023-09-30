@@ -17,7 +17,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
  */
 public class KafkaConnector {
     public static void main(String[] args) {
-
+        // Kafka作为数据源
         KafkaSource<String> source = KafkaSource.<String>builder()
                 .setBootstrapServers("localhost:9092")
                 .setTopics("input-topic")
@@ -30,6 +30,7 @@ public class KafkaConnector {
         streamExecutionEnvironment.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
 
+        // Kafka作为数据汇
         DataStreamSource<String> integerDataStreamSource = streamExecutionEnvironment.fromElements("1", "2");
         KafkaSink<String> sink = KafkaSink.<String>builder()
                 .setBootstrapServers("localhost:9092")
@@ -42,5 +43,7 @@ public class KafkaConnector {
                 .build();
 
         integerDataStreamSource.sinkTo(sink);
+
+
     }
 }
