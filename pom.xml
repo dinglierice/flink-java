@@ -187,7 +187,7 @@ under the License.
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>com.alibaba.fliggy.orcas.flink.DataStreamJob</mainClass>
+									<mainClass>com.zy.self.experience.flink.DataStreamJob</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
